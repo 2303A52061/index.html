@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LMS Factory Example</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#eef3f8; padding:20px; }
+    .container { max-width:700px; margin:auto; }
+    .card {
+      background:#fff; padding:20px; border-radius:10px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.15); margin-bottom:20px;
+    }
+    h2,h3 { text-align:center; color:#222; }
+    .btn-group { text-align:center; margin-top:10px; }
+    button {
+      margin:5px; padding:10px 15px; border:none; border-radius:6px;
+      font-weight:bold; cursor:pointer; transition:0.2s;
+    }
+    button:hover { transform:scale(1.05); }
+    .student { background:#4caf50; color:#fff; }
+    .teacher { background:#007bff; color:#fff; }
+    .admin { background:#ff5722; color:#fff; }
+    input {
+      width:100%; padding:10px; margin-top:10px; margin-bottom:10px;
+      border-radius:6px; border:1px solid #ccc;
+    }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border-bottom:1px solid #ddd; padding:8px; text-align:left; }
+    th { background:#f2f2f2; }
+    .delete-btn {
+      background:#e91e63; color:#fff; border:none;
+      padding:5px 10px; border-radius:5px; cursor:pointer;
+    }
+    #log {
+      background:#111; color:#0f0; padding:10px; border-radius:6px;
+      font-family:monospace; height:120px; overflow:auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h2>📚 LMS User Factory</h2>
+      <p>Enter a name and pick a role:</p>
+      <input type="text" id="username" placeholder="Enter user name" />
+      <div class="btn-group">
+        <button class="student" onclick="createUser('student')">Student</button>
+        <button class="teacher" onclick="createUser('teacher')">Teacher</button>
+        <button class="admin" onclick="createUser('admin')">Admin</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>👥 Users List</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Info</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="userTable">
+          <tr><td colspan="4" style="text-align:center;color:#777;">No users yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>🖥 Console Log</h3>
+      <pre id="log">Logs will appear here...</pre>
+    </div>
+  </div>
+
+  <script>
+    // Base User class
+    class User {
+      constructor(name, role) {
+        this.name = name;
+        this.role = role;
+      }
+      getInfo() {
+        return "Generic User";
+      }
+    }
+
+    // Subclasses
+    class Student extends User {
+      constructor(name) { super(name, "Student"); }
+      getInfo() { return "👨‍🎓 Can view courses"; }
+    }
+    class Teacher extends User {
+      constructor(name) { super(name, "Teacher"); }
+      getInfo() { return "👩‍🏫 Can create/manage courses"; }
+    }
+    class Admin extends User {
+      constructor(name) { super(name, "Admin"); }
+      getInfo() { return "🛠 Full system access"; }
+    }
+
+    // Factory class
+    class UserFactory {
+      static createUser(type, name) {
+        switch(type) {
+          case "student": return new Student(name);
+          case "teacher": return new Teacher(name);
+          case "admin": return new Admin(name);
+          default: throw new Error("Unknown type: " + type);
+        }
+      }
+    }
+
+    const users = [];
+
+    function createUser(type) {
+      const input = document.getElementById("username");
+      const name = input.value.trim();
+      if (!name) { alert("Please enter a name."); return; }
+
+      try {
+        const user = UserFactory.createUser(type, name);
+        users.push(user);
+        updateTable();
+        log(`✅ Created ${user.role}: ${user.name}`);
+        input.value = "";
+      } catch (e) {
+        log("❌ " + e.message);
+      }
+    }
+
+    function updateTable() {
+      const tbody = document.getElementById("userTable");
+      tbody.innerHTML = "";
+
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#777;">No users yet</td></tr>`;
+        return;
+      }
+
+      users.forEach((user, i) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.role}</td>
+          <td>${user.getInfo()}</td>
+          <td><button class="delete-btn" onclick="deleteUser(${i})">Delete</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function deleteUser(i) {
+      const removed = users.splice(i, 1)[0];
+      updateTable();
+      log(`🗑 Deleted ${removed.role}: ${removed.name}`);
+    }
+
+    function log(msg) {
+      const logBox = document.getElementById("log");
+      logBox.textContent += "\n" + msg;
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
