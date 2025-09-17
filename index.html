@@ -2,73 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>LMS User Factory - Dark Theme</title>
+  <title>LMS User Factory - Professional Theme</title>
   <style>
     body {
-      font-family: "Segoe UI", sans-serif;
-      background: #1e1e2f;
-      color: #eee;
-      padding: 20px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #f9fafc;
+      margin: 0; padding: 20px;
+      color: #333;
     }
-    .container { max-width: 750px; margin: auto; }
+    .container { max-width: 900px; margin: auto; }
     .card {
-      background: #2b2b40;
+      background: #fff;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
     }
     h2, h3 {
+      margin-top: 0;
       text-align: center;
-      margin-bottom: 15px;
-      color: #ffcc70;
+      color: #2c3e50;
     }
+    p { text-align: center; }
     input {
       width: 100%;
       padding: 12px;
-      margin: 10px 0;
+      margin: 10px 0 16px 0;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      border: none;
-      background: #3a3a55;
-      color: #fff;
+      font-size: 15px;
     }
-    input::placeholder { color: #aaa; }
     .btn-group { text-align: center; }
     button {
-      margin: 5px; padding: 10px 18px;
-      border: none; border-radius: 8px;
-      font-weight: bold; cursor: pointer;
-      transition: 0.2s;
+      margin: 6px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    button:hover { transform: scale(1.07); }
-    .student { background: #4caf50; color: white; }
-    .teacher { background: #2196f3; color: white; }
-    .admin   { background: #e74c3c; color: white; }
+    button.student { background: #27ae60; color: white; }
+    button.teacher { background: #2980b9; color: white; }
+    button.admin { background: #c0392b; color: white; }
+    button:hover { opacity: 0.9; }
+
     table {
-      width: 100%; border-collapse: collapse;
-      margin-top: 10px;
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
     }
     th, td {
-      padding: 12px;
-      border-bottom: 1px solid #444;
+      padding: 12px 10px;
+      border-bottom: 1px solid #e1e1e1;
       text-align: left;
     }
-    th { background: #3a3a55; color: #ffcc70; }
-    .delete-btn {
-      background: #e91e63;
-      border: none; padding: 6px 12px;
-      border-radius: 6px; cursor: pointer;
-      color: #fff;
+    th {
+      background: #f1f4f8;
+      font-weight: 600;
+      color: #444;
     }
+    .delete-btn {
+      background: #e74c3c;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .delete-btn:hover { background: #c0392b; }
+
     #log {
-      margin-top: 10px;
-      background: #111;
-      color: #0f0;
+      background: #f4f6f9;
+      color: #2c3e50;
       padding: 12px;
       border-radius: 8px;
       font-family: monospace;
-      height: 130px;
+      height: 140px;
       overflow: auto;
+      border: 1px solid #ddd;
     }
   </style>
 </head>
@@ -76,12 +89,12 @@
   <div class="container">
     <div class="card">
       <h2>📚 LMS User Factory</h2>
-      <p style="text-align:center;">Enter a name and select a role:</p>
+      <p>Enter a name and select a user role:</p>
       <input type="text" id="username" placeholder="Enter user name" />
       <div class="btn-group">
-        <button class="student" onclick="createUser('student')">Student</button>
-        <button class="teacher" onclick="createUser('teacher')">Teacher</button>
-        <button class="admin" onclick="createUser('admin')">Admin</button>
+        <button class="student" onclick="createUser('student')">Add Student</button>
+        <button class="teacher" onclick="createUser('teacher')">Add Teacher</button>
+        <button class="admin" onclick="createUser('admin')">Add Admin</button>
       </div>
     </div>
 
@@ -97,13 +110,13 @@
           </tr>
         </thead>
         <tbody id="userTable">
-          <tr><td colspan="4" style="text-align:center; color:#888;">No users yet</td></tr>
+          <tr><td colspan="4" style="text-align:center;color:#888;">No users yet</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="card">
-      <h3>🖥 Console Log</h3>
+      <h3>🖥 Activity Log</h3>
       <pre id="log">Logs will appear here...</pre>
     </div>
   </div>
@@ -117,7 +130,6 @@
       }
       getInfo() { return "Generic User"; }
     }
-    // Subclasses
     class Student extends User {
       constructor(name) { super(name, "Student"); }
       getInfo() { return "👨‍🎓 Can view courses"; }
@@ -130,6 +142,7 @@
       constructor(name) { super(name, "Admin"); }
       getInfo() { return "🛠 Full system access"; }
     }
+
     // Factory
     class UserFactory {
       static createUser(type, name) {
@@ -148,11 +161,12 @@
       const input = document.getElementById("username");
       const name = input.value.trim();
       if (!name) { alert("Please enter a name."); return; }
+
       try {
         const user = UserFactory.createUser(type, name);
         users.push(user);
         updateTable();
-        log(`✅ Created ${user.role}: ${user.name}`);
+        log(`✅ ${user.role} created: ${user.name}`);
         input.value = "";
       } catch (e) {
         log("❌ " + e.message);
@@ -162,10 +176,12 @@
     function updateTable() {
       const tbody = document.getElementById("userTable");
       tbody.innerHTML = "";
+
       if (users.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#888;">No users yet</td></tr>`;
         return;
       }
+
       users.forEach((user, i) => {
         const row = document.createElement("tr");
         row.innerHTML = `
